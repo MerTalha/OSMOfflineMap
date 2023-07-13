@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             // Burada marker ekleme işlemini yapabilirsiniz
-                            int offsetY = -100; // İstediğiniz miktara göre ayarlayın
+                            int offsetY = -110; // İstediğiniz miktara göre ayarlayın
                             GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY() + offsetY);
                             marker.setPosition(touchedPoint);
 

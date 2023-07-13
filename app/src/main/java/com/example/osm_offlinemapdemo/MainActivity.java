@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
                             i = 0;
                             arrayList.add(s);
-                            Log.d("tag", arrayList.get(i));
+                            Log.d("tag", arrayList.get(arrayList.size()-1));
                             i++;
 
                             runOnUiThread(() -> {

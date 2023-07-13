@@ -9,8 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -41,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
     private IMapView mMapView;
     private static IMapController mMapController;
 
-    private Button button;
-
-    protected static int i;
+    protected int i;
 
     ToggleButton toggleButton;
+
+    ArrayList<String> arrayList;
 
     private static final int PICK_DOCUMENT_REQUEST_CODE = 100;
 
@@ -55,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        button = findViewById(R.id.button);
         toggleButton = findViewById(R.id.toggleButton);
         mMapView = (MapView) findViewById(R.id.mapView);
         ((MapView) mMapView).setBuiltInZoomControls(true);
@@ -65,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         mMapController = mMapView.getController();
+
+        arrayList = new ArrayList<>();
 
         MapTileProviderBasic mProvider = new MapTileProviderBasic(getApplicationContext());
 
@@ -86,34 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
                 // Marker oluştur ve ayarla
                 Marker marker = new Marker((MapView) mMapView);
-               /* marker.setPosition(touchedPoint);
-
-                // Marker'ı haritaya ekle
-                List<Overlay> overlays = ((MapView) mMapView).getOverlays();
-                // Eski markerı kaldır
-
-                Overlay lastOverlay = overlays.get(overlays.size() - 1);
-                if (lastOverlay instanceof Marker) {
-                    overlays.remove(lastOverlay);
-                }
-                //overlays.clear(); // Eski markerları temizle
-                overlays.add(marker);
-
-                final StringBuilder msg = new StringBuilder();
-                final double lon = (touchedPoint.getLongitude() / 1E6) * 1000000;
-                final double lat = (touchedPoint.getLatitude() / 1E6) * 1000000;
-                final double alt = getAltitude((float) lon, (float) lat);
-                msg.append("Lon: ");
-                msg.append(lon);
-                msg.append(" Lat: ");
-                msg.append(lat);
-                msg.append(" Alt: ");
-                msg.append(alt);
-                String s = String.valueOf(lat) + "---" + String.valueOf(lon);
-                Log.d("tag", s);
-                Toast.makeText(getApplicationContext(), s,Toast.LENGTH_SHORT).show();
-                ((MapView) mMapView).invalidate(); // Haritanın güncellenmesini*/
-
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     // Timer'ı başlat
@@ -133,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                             if (lastOverlay instanceof Marker) {
                                 overlays.remove(lastOverlay);
                             }*/
+
                             //overlays.clear(); // Eski markerları temizle
                             overlays.add(marker);
 
@@ -146,9 +118,16 @@ public class MainActivity extends AppCompatActivity {
                             msg.append(lat);
                             msg.append(" Alt: ");
                             msg.append(alt);
-                            String s = String.valueOf(lat) + "---" + String.valueOf(lon);
-                            Log.d("tag", s);
-                            //Toast.makeText(getApplicationContext(), s,Toast.LENGTH_SHORT).show();
+                            String s = lat + "---" + lon;
+
+                            i = 0;
+                            arrayList.add(s);
+                            Log.d("tag", arrayList.get(i));
+                            i++;
+
+                            runOnUiThread(() -> {
+                                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+                            });
                             ((MapView) mMapView).invalidate(); // Haritanın güncellenmesini
 
                             // Haritayı güncelle
@@ -168,56 +147,6 @@ public class MainActivity extends AppCompatActivity {
         mMapController.setZoom(15);
         GeoPoint geoPecs = new GeoPoint(39.927784, 32.822267);
         mMapController.setCenter(geoPecs);
-
-
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                //intent.addCategory(Intent.CATEGORY_OPENABLE);
-                //intent.setType("*/*");
-                //intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-
-                //Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                //intent.addCategory(Intent.CATEGORY_OPENABLE);
-                //intent.setType("*/*");
-
-                //startActivityForResult(intent, PICK_SHARED_FILE_REQUEST_CODE);
-
-
-                //Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                //intent.setType("*/*");
-                /*intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-
-                // Klasörün açılması için gerekli olan URI
-                Uri uri = Uri.parse("/storage/emulated/0/Download");
-
-                // ACTION_OPEN_DOCUMENT_TREE kullanarak klasörü açma isteği gönderilir
-                startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE, uri), PICK_DOCUMENT_REQUEST_CODE);*/
-
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-                startActivityForResult(Intent.createChooser(intent, "Dosya Seç"), PICK_DOCUMENT_REQUEST_CODE);
-            }
-        });
-
-
-        /*button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                contract.launch(new Intent(Intent.ACTION_OPEN_DOCUMENT) {
-                    {
-                        setType("*//*");
-                        //addCategory(Intent.CATEGORY_OPENABLE);
-                    }
-                });
-            }
-        });*/
-
 
     }
 

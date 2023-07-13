@@ -55,16 +55,14 @@ public class MainActivity extends AppCompatActivity {
 
         toggleButton = findViewById(R.id.toggleButton);
         mMapView = (MapView) findViewById(R.id.mapView);
-        ((MapView) mMapView).setBuiltInZoomControls(true);
-        ((MapView) mMapView).setUseDataConnection(false);
-
-        ((MapView) mMapView).setMultiTouchControls(true);
-
-
-        mMapController = mMapView.getController();
-
         arrayList = new ArrayList<>();
 
+        ((MapView) mMapView).setBuiltInZoomControls(true);
+        ((MapView) mMapView).setUseDataConnection(false);
+        ((MapView) mMapView).setMultiTouchControls(true);
+
+        mMapController = mMapView.getController();
+        
         MapTileProviderBasic mProvider = new MapTileProviderBasic(getApplicationContext());
 
         ((MapView) mMapView).setTileSource(TileSourceFactory.MAPNIK);
@@ -72,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setMaxZoomLevel(17.0);
 
         XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
-        //XYTileSource mCustomTileSource = new XYTileSource("turkey", 8, 18, 256, ".mbtiles", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
         mProvider.setTileSource(mCustomTileSource);
         TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
 
@@ -80,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         ((MapView) mMapView).setOnTouchListener((view, motionEvent) -> {
             if (toggleButton.isChecked()){
-                GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY());
                  Timer markerTimer = new Timer();
 
                 // Marker oluştur ve ayarla
@@ -100,12 +96,6 @@ public class MainActivity extends AppCompatActivity {
                             List<Overlay> overlays = ((MapView) mMapView).getOverlays();
                             // Eski markerı kaldır
 
-                            /*Overlay lastOverlay = overlays.get(overlays.size() - 1);
-                            if (lastOverlay instanceof Marker) {
-                                overlays.remove(lastOverlay);
-                            }*/
-
-                            //overlays.clear(); // Eski markerları temizle
                             overlays.add(marker);
 
                             final StringBuilder msg = new StringBuilder();
@@ -125,9 +115,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("tag", arrayList.get(arrayList.size()-1));
                             i++;
 
-                            runOnUiThread(() -> {
-                                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-                            });
+                            runOnUiThread(() -> Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show());
                             ((MapView) mMapView).invalidate(); // Haritanın güncellenmesini
 
                             // Haritayı güncelle
@@ -149,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
         mMapController.setCenter(geoPecs);
 
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

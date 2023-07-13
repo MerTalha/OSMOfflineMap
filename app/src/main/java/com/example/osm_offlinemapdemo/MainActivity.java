@@ -61,8 +61,17 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setUseDataConnection(false);
         ((MapView) mMapView).setMultiTouchControls(true);
 
+        // Haritanın görüntüleneceği sınırları belirle
+        double maxLatitude = 85.0; // Kuzey sınırı
+        double minLatitude = -85.0; // Güney sınırı
+        double minLongitude = -180.0; // Batı sınırı
+        double maxLongitude = 180.0; // Doğu sınırı
+
+        ((MapView) mMapView).setScrollableAreaLimitLatitude(maxLatitude, minLatitude, 0);
+        ((MapView) mMapView).setScrollableAreaLimitLongitude(minLongitude, maxLongitude, 0);
+
         mMapController = mMapView.getController();
-        
+
         MapTileProviderBasic mProvider = new MapTileProviderBasic(getApplicationContext());
 
         ((MapView) mMapView).setTileSource(TileSourceFactory.MAPNIK);

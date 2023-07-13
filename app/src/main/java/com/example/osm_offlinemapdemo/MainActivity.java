@@ -21,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.api.IMapView;
 import org.osmdroid.tileprovider.MapTileProviderBasic;
-import org.osmdroid.tileprovider.modules.MBTilesFileArchive;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
@@ -31,8 +30,10 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.TilesOverlay;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private static IMapController mMapController;
 
     private Button button;
+
+    protected static int i;
 
     ToggleButton toggleButton;
 
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         ((MapView) mMapView).setTileSource(TileSourceFactory.MAPNIK);
         ((MapView) mMapView).setMinZoomLevel(2.0);
-        ((MapView) mMapView).setMaxZoomLevel(15.0);
+        ((MapView) mMapView).setMaxZoomLevel(17.0);
 
         XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
         //XYTileSource mCustomTileSource = new XYTileSource("turkey", 8, 18, 256, ".mbtiles", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
@@ -78,37 +81,86 @@ public class MainActivity extends AppCompatActivity {
 
         ((MapView) mMapView).setOnTouchListener((view, motionEvent) -> {
             if (toggleButton.isChecked()){
-                    GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY());
+                GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY());
+                 Timer markerTimer = new Timer();
 
-                    // Marker oluştur ve ayarla
-                    Marker marker = new Marker((MapView) mMapView);
-                    marker.setPosition(touchedPoint);
+                // Marker oluştur ve ayarla
+                Marker marker = new Marker((MapView) mMapView);
+               /* marker.setPosition(touchedPoint);
 
-                    // Marker'ı haritaya ekle
-                    List<Overlay> overlays = ((MapView) mMapView).getOverlays();
-                    // Eski markerı kaldır
+                // Marker'ı haritaya ekle
+                List<Overlay> overlays = ((MapView) mMapView).getOverlays();
+                // Eski markerı kaldır
 
-                    Overlay lastOverlay = overlays.get(overlays.size() - 1);
-                    if (lastOverlay instanceof Marker) {
-                        overlays.remove(lastOverlay);
-                    }
-                    //overlays.clear(); // Eski markerları temizle
-                    overlays.add(marker);
+                Overlay lastOverlay = overlays.get(overlays.size() - 1);
+                if (lastOverlay instanceof Marker) {
+                    overlays.remove(lastOverlay);
+                }
+                //overlays.clear(); // Eski markerları temizle
+                overlays.add(marker);
 
-                    final StringBuilder msg = new StringBuilder();
-                    final double lon = (touchedPoint.getLongitude() / 1E6) * 1000000;
-                    final double lat = (touchedPoint.getLatitude() / 1E6) * 1000000;
-                    final double alt = getAltitude((float) lon, (float) lat);
-                    msg.append("Lon: ");
-                    msg.append(lon);
-                    msg.append(" Lat: ");
-                    msg.append(lat);
-                    msg.append(" Alt: ");
-                    msg.append(alt);
+                final StringBuilder msg = new StringBuilder();
+                final double lon = (touchedPoint.getLongitude() / 1E6) * 1000000;
+                final double lat = (touchedPoint.getLatitude() / 1E6) * 1000000;
+                final double alt = getAltitude((float) lon, (float) lat);
+                msg.append("Lon: ");
+                msg.append(lon);
+                msg.append(" Lat: ");
+                msg.append(lat);
+                msg.append(" Alt: ");
+                msg.append(alt);
                 String s = String.valueOf(lat) + "---" + String.valueOf(lon);
                 Log.d("tag", s);
-                    Toast.makeText(getApplicationContext(), s,Toast.LENGTH_SHORT).show();
-                    ((MapView) mMapView).invalidate(); // Haritanın güncellenmesini
+                Toast.makeText(getApplicationContext(), s,Toast.LENGTH_SHORT).show();
+                ((MapView) mMapView).invalidate(); // Haritanın güncellenmesini*/
+
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    // Timer'ı başlat
+                    TimerTask markerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            // Burada marker ekleme işlemini yapabilirsiniz
+                            int offsetY = -100; // İstediğiniz miktara göre ayarlayın
+                            GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY() + offsetY);
+                            marker.setPosition(touchedPoint);
+
+                            // Marker'ı haritaya ekle
+                            List<Overlay> overlays = ((MapView) mMapView).getOverlays();
+                            // Eski markerı kaldır
+
+                            /*Overlay lastOverlay = overlays.get(overlays.size() - 1);
+                            if (lastOverlay instanceof Marker) {
+                                overlays.remove(lastOverlay);
+                            }*/
+                            //overlays.clear(); // Eski markerları temizle
+                            overlays.add(marker);
+
+                            final StringBuilder msg = new StringBuilder();
+                            final double lon = (touchedPoint.getLongitude() / 1E6) * 1000000;
+                            final double lat = (touchedPoint.getLatitude() / 1E6) * 1000000;
+                            final double alt = getAltitude((float) lon, (float) lat);
+                            msg.append("Lon: ");
+                            msg.append(lon);
+                            msg.append(" Lat: ");
+                            msg.append(lat);
+                            msg.append(" Alt: ");
+                            msg.append(alt);
+                            String s = String.valueOf(lat) + "---" + String.valueOf(lon);
+                            Log.d("tag", s);
+                            //Toast.makeText(getApplicationContext(), s,Toast.LENGTH_SHORT).show();
+                            ((MapView) mMapView).invalidate(); // Haritanın güncellenmesini
+
+                            // Haritayı güncelle
+                            ((MapView) mMapView).postInvalidate();
+                        }
+                    };
+                    // 500 milisaniye (yarım saniye) içinde tekrar dokunma olmazsa, marker eklemesini yap
+                    markerTimer.schedule(markerTask, 500);
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    // Timer'ı iptal et
+                    markerTimer.cancel();
+                }
             }
             return false;
         });

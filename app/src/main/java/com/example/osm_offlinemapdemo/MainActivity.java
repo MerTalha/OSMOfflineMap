@@ -3,6 +3,7 @@ package com.example.osm_offlinemapdemo;
 import static android.hardware.SensorManager.getAltitude;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,6 +21,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.TilesOverlay;
 
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Double> arrayList;
 
     ArrayList<Double> arrayList1;
+    private Polyline line;
+
 
     private static final int PICK_DOCUMENT_REQUEST_CODE = 100;
 
@@ -81,6 +85,10 @@ public class MainActivity extends AppCompatActivity {
 
         ((MapView) mMapView).getOverlays().add(mTilesOverlay);
 
+        line = new Polyline();
+        line.setColor(Color.RED);
+        ((MapView) mMapView).getOverlayManager().add(line);
+
         ((MapView) mMapView).setOnTouchListener((view, motionEvent) -> {
             if (toggleButton.isChecked()){
                  Timer markerTimer = new Timer();
@@ -97,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                             int offsetY = -110; // İstediğiniz miktara göre ayarlayın
                             GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY() + offsetY);
                             marker.setPosition(touchedPoint);
+                            line.addPoint(touchedPoint);
 
                             // Marker'ı haritaya ekle
                             List<Overlay> overlays = ((MapView) mMapView).getOverlays();

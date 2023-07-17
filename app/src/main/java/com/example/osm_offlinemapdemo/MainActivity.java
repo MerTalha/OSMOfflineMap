@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                             i = 0;
                             arrayList.add(lon);
                             arrayList1.add(lat);
-                            Log.d("tag", String.valueOf(arrayList.get(arrayList.size()-1)));
+                            Log.d("tag", s);
                             i++;
 
                             if (arrayList.size()>=2 && arrayList1.size()>= 2){
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                                         arrayList1.get(arrayList1.size()-1),
                                         arrayList.get(arrayList.size()-2),
                                         arrayList1.get(arrayList1.size() -2));
-                                Log.d("tag Distance", String.valueOf(a));
+                                Log.d("tag Distance", String.valueOf(line.getDistance()));
                             }
 
                             runOnUiThread(() -> Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show());

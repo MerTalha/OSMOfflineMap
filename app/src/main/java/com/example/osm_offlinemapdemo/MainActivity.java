@@ -34,16 +34,11 @@ public class MainActivity extends AppCompatActivity {
 
     private IMapView mMapView;
     private static IMapController mMapController;
-
     protected int i;
-
     ToggleButton toggleButton;
-
     ArrayList<Double> arrayList;
-
     ArrayList<Double> arrayList1;
     private Polyline line;
-
 
     private static final int PICK_DOCUMENT_REQUEST_CODE = 100;
 
@@ -62,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setUseDataConnection(false);
         ((MapView) mMapView).setMultiTouchControls(true);
 
-        // Haritanın görüntüleneceği sınırları belirle
-        double maxLatitude = 85.0; // Kuzey sınırı
-        double minLatitude = -85.0; // Güney sınırı
-        double minLongitude = -180.0; // Batı sınırı
-        double maxLongitude = 180.0; // Doğu sınırı
+        // Set the size of the image of the map
+        double maxLatitude = 85.0; // Northern Border
+        double minLatitude = -85.0; // South Border
+        double minLongitude = -180.0; // West Border
+        double maxLongitude = 180.0; // East Border
 
         ((MapView) mMapView).setScrollableAreaLimitLatitude(maxLatitude, minLatitude, 0);
         ((MapView) mMapView).setScrollableAreaLimitLongitude(minLongitude, maxLongitude, 0);
@@ -93,24 +88,22 @@ public class MainActivity extends AppCompatActivity {
             if (toggleButton.isChecked()){
                  Timer markerTimer = new Timer();
 
-                // Marker oluştur ve ayarla
+                // Create and set markers
                 Marker marker = new Marker((MapView) mMapView);
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    // Timer'ı başlat
+                    // Start timer
                     TimerTask markerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            // Burada marker ekleme işlemini yapabilirsiniz
-                            int offsetY = -110; // İstediğiniz miktara göre ayarlayın
+                            // Here you can add markers
+                            int offsetY = -110; // Adjust according to device screen
                             GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY() + offsetY);
                             marker.setPosition(touchedPoint);
                             line.addPoint(touchedPoint);
 
-                            // Marker'ı haritaya ekle
+                            // Add marker to map
                             List<Overlay> overlays = ((MapView) mMapView).getOverlays();
-                            // Eski markerı kaldır
-
                             overlays.add(marker);
 
                             final StringBuilder msg = new StringBuilder();
@@ -136,20 +129,20 @@ public class MainActivity extends AppCompatActivity {
                                         arrayList1.get(arrayList1.size()-1),
                                         arrayList.get(arrayList.size()-2),
                                         arrayList1.get(arrayList1.size() -2));
-                                Log.d("tag mesafe", String.valueOf(a));
+                                Log.d("tag Distance", String.valueOf(a));
                             }
 
                             runOnUiThread(() -> Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show());
-                            ((MapView) mMapView).invalidate(); // Haritanın güncellenmesini
+                            ((MapView) mMapView).invalidate();
 
-                            // Haritayı güncelle
+                            // Update map
                             ((MapView) mMapView).postInvalidate();
                         }
                     };
-                    // 500 milisaniye (yarım saniye) içinde tekrar dokunma olmazsa, marker eklemesini yap
+                    // Add marker if no touch again within 500 milliseconds (half a second)
                     markerTimer.schedule(markerTask, 500);
                 } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    // Timer'ı iptal et
+                    // Cancel timer
                     markerTimer.cancel();
                 }
             }
@@ -163,13 +156,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static double getDistanceBetweenPointsNew(double latitude1, double longitude1, double latitude2, double longitude2) {
-        /*double theta = longitude1 - longitude2;
-        double distance = 60 * 1.1515 * (180/Math.PI) * Math.acos(
-                Math.sin(latitude1 * (Math.PI/180)) * Math.sin(latitude2 * (Math.PI/180)) +
-                        Math.cos(latitude1 * (Math.PI/180)) * Math.cos(latitude2 * (Math.PI/180)) *
-                                Math.cos(theta * (Math.PI/180))
-        );
-        return distance * 1.609344;*/
 
         // distance between latitudes and longitudes
         double dLat = Math.toRadians(latitude2 - latitude1);

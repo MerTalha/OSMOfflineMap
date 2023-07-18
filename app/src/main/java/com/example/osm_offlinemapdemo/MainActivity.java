@@ -1,7 +1,5 @@
 package com.example.osm_offlinemapdemo;
 
-import static android.hardware.SensorManager.getAltitude;
-
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -29,7 +27,6 @@ import org.osmdroid.views.overlay.TilesOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -90,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
 
         ((MapView) mMapView).getOverlays().add(mTilesOverlay);
-        
+
         line = new Polyline();
         line.getPaint().setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
         line.setColor(Color.RED);
@@ -168,19 +165,9 @@ public class MainActivity extends AppCompatActivity {
         GeoPoint geoPecs = new GeoPoint(39.927784, 32.822267);
         mMapController.setCenter(geoPecs);
 
-        deleteAllbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deleteAll();
-            }
-        });
+        deleteAllbtn.setOnClickListener(view -> deleteAll());
 
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                delete();
-            }
-        });
+        deleteBtn.setOnClickListener(view -> delete());
     }
 
     public void deleteAll(){
@@ -195,11 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
         ((MapView) mMapView).postInvalidate();
     }
-
     public void delete(){
-        /*if (overlays.size()!=1){
-            overlays.remove(overlays.get(overlays.size()-1));
-        }*/
         if (line.getActualPoints().size() !=0){
             overlays.remove(overlays.get(overlays.size()-1));
             line.getActualPoints().remove(line.getActualPoints().size()-1);

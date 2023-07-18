@@ -4,6 +4,7 @@ import static android.hardware.SensorManager.getAltitude;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -28,6 +29,7 @@ import org.osmdroid.views.overlay.TilesOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).getOverlays().add(mTilesOverlay);
 
         line = new Polyline();
+        line.getPaint().setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
         line.setColor(Color.RED);
         ((MapView) mMapView).getOverlayManager().add(line);
 
@@ -189,17 +192,17 @@ public class MainActivity extends AppCompatActivity {
         arrayLot.clear();
         ((MapView) mMapView).getOverlayManager().add(line);
 
-        ((MapView) mMapView).invalidate();
+        ((MapView) mMapView).postInvalidate();
     }
 
     public void delete(){
-        if (overlays.size()!=1){
+        /*if (overlays.size()!=1){
             overlays.remove(overlays.get(overlays.size()-1));
-        }
+        }*/
         if (line.getActualPoints().size() !=0){
+            overlays.remove(overlays.get(overlays.size()-1));
             line.getActualPoints().remove(line.getActualPoints().size()-1);
-            
+            ((MapView) mMapView).postInvalidate();
         }
-        ((MapView) mMapView).postInvalidate();
     }
 }

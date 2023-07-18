@@ -36,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
     private static IMapController mMapController;
     protected int i;
     ToggleButton toggleButton;
-    ArrayList<Double> arrayList;
-    ArrayList<Double> arrayList1;
+    ArrayList<Double> arrayLot;
+    ArrayList<Double> arrayLat;
+    ArrayList<Double> arrayDistance;
     private Polyline line;
-
-    private static final int PICK_DOCUMENT_REQUEST_CODE = 100;
+    double a;
 
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
@@ -50,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
         toggleButton = findViewById(R.id.toggleButton);
         mMapView = (MapView) findViewById(R.id.mapView);
-        arrayList = new ArrayList<>();
-        arrayList1 = new ArrayList<>();
+        arrayLot = new ArrayList<>();
+        arrayLat = new ArrayList<>();
+        arrayDistance = new ArrayList<>();
 
         ((MapView) mMapView).setBuiltInZoomControls(true);
         ((MapView) mMapView).setUseDataConnection(false);
@@ -119,17 +120,27 @@ public class MainActivity extends AppCompatActivity {
                             String s = lat + "---" + lon;
 
                             i = 0;
-                            arrayList.add(lon);
-                            arrayList1.add(lat);
+                            arrayLot.add(lon);
+                            arrayLat.add(lat);
                             Log.d("tag", s);
                             i++;
 
-                            if (arrayList.size()>=2 && arrayList1.size()>= 2){
-                                double a = getDistanceBetweenPointsNew(arrayList.get(arrayList.size()-1),
-                                        arrayList1.get(arrayList1.size()-1),
-                                        arrayList.get(arrayList.size()-2),
-                                        arrayList1.get(arrayList1.size() -2));
+                            if (arrayLot.size()>=2 && arrayLat.size()>= 2){
                                 Log.d("tag Distance", String.valueOf(line.getDistance()));
+                            }
+
+                            if (arrayDistance.size() == 0){
+                                arrayDistance.add(line.getDistance());
+                            } else if (arrayDistance.size() == 1) {
+                                arrayDistance.add(line.getDistance()-arrayDistance.get(arrayDistance.size()-1));
+                                Log.d("tag Array Distance", String.valueOf(arrayDistance.get(arrayDistance.size()-1)));
+                            } else if (arrayDistance.size() >1) {
+                                a = 0;
+                                for (int i = 0; arrayDistance.size()-1 >= i; i++){
+                                    a += arrayDistance.get(i);
+                                }
+                                arrayDistance.add(line.getDistance() - a);
+                                Log.d("tag Array Distance", String.valueOf(arrayDistance.get(arrayDistance.size()-1)));
                             }
 
                             runOnUiThread(() -> Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show());

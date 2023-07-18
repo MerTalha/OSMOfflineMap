@@ -36,15 +36,17 @@ public class MainActivity extends AppCompatActivity {
 
     private IMapView mMapView;
     private static IMapController mMapController;
-    protected int i;
+    private Polyline line;
+    TimerTask markerTask;
+    Marker marker;
     ToggleButton toggleButton;
+    Button deleteAllbtn;
+    Button deleteBtn;
     ArrayList<Double> arrayLot;
     ArrayList<Double> arrayLat;
     ArrayList<Double> arrayDistance;
     List<Overlay> overlays;
-    private Polyline line;
     double a;
-    Marker marker;
 
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         toggleButton = findViewById(R.id.toggleButton);
+        deleteAllbtn = findViewById(R.id.deleteAllBtn);
+        deleteBtn = findViewById(R.id.deleteBtn);
         mMapView = (MapView) findViewById(R.id.mapView);
         arrayLot = new ArrayList<>();
         arrayLat = new ArrayList<>();
@@ -97,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     // Start timer
-                    TimerTask markerTask = new TimerTask() {
+                    markerTask = new TimerTask() {
                         @Override
                         public void run() {
                             // Here you can add markers
@@ -112,20 +116,15 @@ public class MainActivity extends AppCompatActivity {
                             final StringBuilder msg = new StringBuilder();
                             final double lon = (touchedPoint.getLongitude() / 1E6) * 1000000;
                             final double lat = (touchedPoint.getLatitude() / 1E6) * 1000000;
-                            final double alt = getAltitude((float) lon, (float) lat);
                             msg.append("Lon: ");
                             msg.append(lon);
                             msg.append(" Lat: ");
                             msg.append(lat);
-                            msg.append(" Alt: ");
-                            msg.append(alt);
                             String s = lat + "---" + lon;
 
-                            i = 0;
                             arrayLot.add(lon);
                             arrayLat.add(lat);
                             Log.d("tag", s);
-                            i++;
 
                             if (arrayLot.size()>=2 && arrayLat.size()>= 2){
                                 Log.d("tag Distance", String.valueOf(line.getDistance()));
@@ -165,28 +164,42 @@ public class MainActivity extends AppCompatActivity {
         GeoPoint geoPecs = new GeoPoint(39.927784, 32.822267);
         mMapController.setCenter(geoPecs);
 
-        Button btn = findViewById(R.id.deleteBtn);
-        btn.setOnClickListener(new View.OnClickListener() {
+        deleteAllbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*if (overlays.size() !=1){
-                    overlays.remove(overlays.get(overlays.size()-1));
-                }
-                line.onDestroy();*/
-
-                line.getActualPoints().clear();
-                while (overlays.size() !=1){
-                    overlays.remove(overlays.get(overlays.size()-1));
-                }
-                arrayDistance.clear();
-                arrayLat.clear();
-                arrayLot.clear();
-                ((MapView) mMapView).getOverlayManager().add(line);
-
-
-                ((MapView) mMapView).invalidate();
-
+                deleteAll();
             }
         });
+
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                delete();
+            }
+        });
+    }
+
+    public void deleteAll(){
+        line.getActualPoints().clear();
+        while (overlays.size() !=1){
+            overlays.remove(overlays.get(overlays.size()-1));
+        }
+        arrayDistance.clear();
+        arrayLat.clear();
+        arrayLot.clear();
+        ((MapView) mMapView).getOverlayManager().add(line);
+
+        ((MapView) mMapView).invalidate();
+    }
+
+    public void delete(){
+        if (overlays.size()!=1){
+            overlays.remove(overlays.get(overlays.size()-1));
+        }
+        if (line.getActualPoints().size() !=0){
+            line.getActualPoints().remove(line.getActualPoints().size()-1);
+            
+        }
+        ((MapView) mMapView).postInvalidate();
     }
 }

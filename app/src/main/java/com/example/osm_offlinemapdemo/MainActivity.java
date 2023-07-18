@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
 
         ((MapView) mMapView).getOverlays().add(mTilesOverlay);
-
+        
         line = new Polyline();
         line.getPaint().setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
         line.setColor(Color.RED);
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                  Timer markerTimer = new Timer();
                 // Create and set markers
                 marker = new Marker((MapView) mMapView);
+                marker.setInfoWindow(null);
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     // Start timer

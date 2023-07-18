@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Double> arrayDistance;
     private Polyline line;
     double a;
+    Marker marker;
 
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
@@ -90,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                  Timer markerTimer = new Timer();
 
                 // Create and set markers
-                Marker marker = new Marker((MapView) mMapView);
+                marker = new Marker((MapView) mMapView);
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     // Start timer
@@ -159,32 +162,8 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-
         mMapController.setZoom(15);
         GeoPoint geoPecs = new GeoPoint(39.927784, 32.822267);
         mMapController.setCenter(geoPecs);
-
     }
-
-    public static double getDistanceBetweenPointsNew(double latitude1, double longitude1, double latitude2, double longitude2) {
-
-        // distance between latitudes and longitudes
-        double dLat = Math.toRadians(latitude2 - latitude1);
-        double dLon = Math.toRadians(longitude2 - longitude1);
-
-        // convert to radians
-        latitude1 = Math.toRadians(latitude1);
-        latitude2 = Math.toRadians(latitude2);
-
-        // apply formulae
-        double a = Math.pow(Math.sin(dLat / 2), 2) +
-                Math.pow(Math.sin(dLon / 2), 2) *
-                        Math.cos(latitude1) *
-                        Math.cos(latitude2);
-        double rad = 6371;
-        double c = 2 * Math.asin(Math.sqrt(a));
-        return rad * c;
-
-    }
-
 }

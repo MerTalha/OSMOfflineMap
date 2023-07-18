@@ -166,24 +166,27 @@ public class MainActivity extends AppCompatActivity {
         mMapController.setCenter(geoPecs);
 
         Button btn = findViewById(R.id.deleteBtn);
-        Button plBtn = findViewById(R.id.btnPolyline);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (overlays.size() !=1){
+                /*if (overlays.size() !=1){
                     overlays.remove(overlays.get(overlays.size()-1));
                 }
-                line.onDestroy();
+                line.onDestroy();*/
+
+                line.getActualPoints().clear();
+                while (overlays.size() !=1){
+                    overlays.remove(overlays.get(overlays.size()-1));
+                }
+                arrayDistance.clear();
+                arrayLat.clear();
+                arrayLot.clear();
+                ((MapView) mMapView).getOverlayManager().add(line);
+
 
                 ((MapView) mMapView).invalidate();
 
             }
         });
-        /*plBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MapView) mMapView).getOverlayManager().add(line);
-            }
-        });*/
     }
 }

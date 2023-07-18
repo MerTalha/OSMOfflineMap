@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Double> arrayLot;
     ArrayList<Double> arrayLat;
     ArrayList<Double> arrayDistance;
+    List<Overlay> overlays;
     private Polyline line;
     double a;
     Marker marker;
@@ -91,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setOnTouchListener((view, motionEvent) -> {
             if (toggleButton.isChecked()){
                  Timer markerTimer = new Timer();
-
                 // Create and set markers
                 marker = new Marker((MapView) mMapView);
 
@@ -105,9 +105,8 @@ public class MainActivity extends AppCompatActivity {
                             GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY() + offsetY);
                             marker.setPosition(touchedPoint);
                             line.addPoint(touchedPoint);
-
                             // Add marker to map
-                            List<Overlay> overlays = ((MapView) mMapView).getOverlays();
+                            overlays = ((MapView) mMapView).getOverlays();
                             overlays.add(marker);
 
                             final StringBuilder msg = new StringBuilder();
@@ -165,5 +164,26 @@ public class MainActivity extends AppCompatActivity {
         mMapController.setZoom(15);
         GeoPoint geoPecs = new GeoPoint(39.927784, 32.822267);
         mMapController.setCenter(geoPecs);
+
+        Button btn = findViewById(R.id.deleteBtn);
+        Button plBtn = findViewById(R.id.btnPolyline);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (overlays.size() !=1){
+                    overlays.remove(overlays.get(overlays.size()-1));
+                }
+                line.onDestroy();
+
+                ((MapView) mMapView).invalidate();
+
+            }
+        });
+        /*plBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MapView) mMapView).getOverlayManager().add(line);
+            }
+        });*/
     }
 }

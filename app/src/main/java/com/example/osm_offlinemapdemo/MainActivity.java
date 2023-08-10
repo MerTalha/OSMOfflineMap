@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
     List<Overlay> overlays;
     double a;
 
+    ArrayList<Marker> markerList = new ArrayList<>();
+    ArrayList<Polyline> polylineList = new ArrayList<>();
+
+
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).getOverlays().add(mTilesOverlay);
 
         line = new Polyline();
+
         line.getPaint().setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
         line.setColor(Color.RED);
         ((MapView) mMapView).getOverlayManager().add(line);
@@ -118,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
                             // Add marker to map
                             overlays = ((MapView) mMapView).getOverlays();
                             overlays.add(marker);
+                            polylineList.add(line);
+                            markerList.add(marker);
+
 
                             final StringBuilder msg = new StringBuilder();
                             final double lon = (touchedPoint.getLongitude() / 1E6) * 1000000;
@@ -221,10 +229,24 @@ public class MainActivity extends AppCompatActivity {
                 GeoPoint newGeoPoint = marker.getPosition();
                 Log.d("yeni geopoint" , String.valueOf(newGeoPoint));
 
-                //line.getActualPoints().set(newGeoPoint);
-                line.setPoints(new ArrayList<>(line.getActualPoints()));
+                for (int i = 0; i < markerList.size(); i++) {
+                    if (markerList.get(i) != marker) {
+                        GeoPoint originalGeoPoint = markerList.get(i).getPosition();
+                        GeoPoint updatedGeoPoint = new GeoPoint(
+                                originalGeoPoint.getLatitude() + (newGeoPoint.getLatitude() - originalGeoPoint.getLatitude()),
+                                originalGeoPoint.getLongitude() + (newGeoPoint.getLongitude() - originalGeoPoint.getLongitude())
+                        );
+
+                        markerList.get(i).setPosition(updatedGeoPoint);
+
+                        Polyline connectedPolyline = polylineList.get(i);
+                        List<GeoPoint> points = connectedPolyline.getActualPoints();
+                        points.set(1, updatedGeoPoint); // Sadece ikinci noktayı güncelle
+                        connectedPolyline.setPoints(new ArrayList<>(points));
+                    }
+                }
                 ((MapView) mapView).postInvalidate();
-                // Yeni konumu kullanarak işlemler yapabilirsiniz.
+
             }
 
             @Override

@@ -186,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
         if (line.getActualPoints().size() !=0){
             overlays.remove(overlays.get(overlays.size()-1));
             line.getActualPoints().remove(line.getActualPoints().size()-1);
+            line.setPoints(new ArrayList<>(line.getActualPoints()));
             ((MapView) mMapView).postInvalidate();
         }
     }

@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         arrayLat = new ArrayList<>();
         arrayDistance = new ArrayList<>();
 
+
+
         ((MapView) mMapView).setBuiltInZoomControls(true);
         ((MapView) mMapView).setUseDataConnection(false);
         ((MapView) mMapView).setMultiTouchControls(true);
@@ -94,11 +96,14 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).getOverlayManager().add(line);
 
         ((MapView) mMapView).setOnTouchListener((view, motionEvent) -> {
+
             if (toggleButton.isChecked()){
                  Timer markerTimer = new Timer();
                 // Create and set markers
                 marker = new Marker((MapView) mMapView);
                 marker.setInfoWindow(null);
+                applyDraggableListener(marker, (MapView) mMapView);
+
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     // Start timer
@@ -147,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
 
                             runOnUiThread(() -> Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show());
                             ((MapView) mMapView).invalidate();
-
                             // Update map
                             ((MapView) mMapView).postInvalidate();
                         }
@@ -168,7 +172,9 @@ public class MainActivity extends AppCompatActivity {
         deleteAllbtn.setOnClickListener(view -> deleteAll());
 
         deleteBtn.setOnClickListener(view -> delete());
+
     }
+
 
     public void deleteAll(){
         line.getActualPoints().clear();
@@ -190,4 +196,46 @@ public class MainActivity extends AppCompatActivity {
             ((MapView) mMapView).postInvalidate();
         }
     }
+
+    public  void applyDraggableListener(Marker poiMarker, MapView mapView  ) {
+
+        marker.setDraggable(true);
+        poiMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                mapView.invalidate();
+
+                return true;
+            }
+        });
+
+        poiMarker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                // Sürükleme başladığında yapılacak işlemler
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                GeoPoint newGeoPoint = marker.getPosition();
+                Log.d("yeni geopoint" , String.valueOf(newGeoPoint));
+
+                //line.getActualPoints().set(newGeoPoint);
+                line.setPoints(new ArrayList<>(line.getActualPoints()));
+                ((MapView) mapView).postInvalidate();
+                // Yeni konumu kullanarak işlemler yapabilirsiniz.
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                // Sürüklenirken yapılacak işlemler
+
+            }
+        });
+    }
+
+
+
+
 }

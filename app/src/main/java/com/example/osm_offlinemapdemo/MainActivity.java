@@ -6,7 +6,6 @@ import android.graphics.DashPathEffect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -60,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         toggleButton = findViewById(R.id.toggleButton);
         deleteAllbtn = findViewById(R.id.deleteAllBtn);
         deleteBtn = findViewById(R.id.deleteBtn);
-        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView = findViewById(R.id.mapView);
         arrayLot = new ArrayList<>();
         arrayLat = new ArrayList<>();
         arrayDistance = new ArrayList<>();
@@ -249,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                ((MapView) mapView).invalidate();
+                mapView.invalidate();
 
             }
 

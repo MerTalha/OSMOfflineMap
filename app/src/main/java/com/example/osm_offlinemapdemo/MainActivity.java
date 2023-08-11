@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.api.IMapView;
+import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.MapTileProviderBasic;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     ToggleButton toggleButton;
     Button deleteAllbtn;
     Button deleteBtn;
+    Button openFileBtn;
     ArrayList<Double> arrayLot;
     ArrayList<Double> arrayLat;
     ArrayList<Double> arrayDistance;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Marker> markerList = new ArrayList<>();
     ArrayList<Polyline> polylineList = new ArrayList<>();
 
+    static final int PICK_MAP_FILE_REQUEST = 1;
 
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
@@ -56,15 +59,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // OSMDroid konfigürasyonunu başlat
+        Configuration.getInstance().load(getApplicationContext(), getPreferences(MODE_PRIVATE));
+
+
         toggleButton = findViewById(R.id.toggleButton);
         deleteAllbtn = findViewById(R.id.deleteAllBtn);
         deleteBtn = findViewById(R.id.deleteBtn);
+        openFileBtn = findViewById(R.id.openFileBtn);
         mMapView = findViewById(R.id.mapView);
         arrayLot = new ArrayList<>();
         arrayLat = new ArrayList<>();
         arrayDistance = new ArrayList<>();
 
-
+        ((MapView) mMapView).setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
 
         ((MapView) mMapView).setBuiltInZoomControls(true);
         ((MapView) mMapView).setUseDataConnection(false);
@@ -271,4 +279,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

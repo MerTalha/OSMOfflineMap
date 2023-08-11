@@ -264,8 +264,9 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < polylineList.size(); i++) {
                     Polyline connectedPolyline = polylineList.get(i);
                     List<GeoPoint> points = connectedPolyline.getActualPoints();
-                    if (polylineList.size() != 0)
-                    points.set(draggedMarkerIndex, newGeoPoint);
+                    if (polylineList.size() != 0){
+                        points.set(draggedMarkerIndex, newGeoPoint);
+                    }
                     connectedPolyline.setPoints(new ArrayList<>(points));
                 }
             }

@@ -192,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
         arrayDistance.clear();
         arrayLat.clear();
         arrayLot.clear();
+        markerList.clear();
+        polylineList.clear();
         ((MapView) mMapView).getOverlayManager().add(line);
 
         ((MapView) mMapView).postInvalidate();
@@ -201,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
             overlays.remove(overlays.get(overlays.size()-1));
             line.getActualPoints().remove(line.getActualPoints().size()-1);
             line.setPoints(new ArrayList<>(line.getActualPoints()));
+
             ((MapView) mMapView).postInvalidate();
         }
     }
@@ -227,25 +230,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMarkerDragEnd(Marker marker) {
                 GeoPoint newGeoPoint = marker.getPosition();
-                Log.d("yeni geopoint" , String.valueOf(newGeoPoint));
+                Log.d("yeni geopoint", String.valueOf(newGeoPoint));
 
-                for (int i = 0; i < markerList.size(); i++) {
-                    if (markerList.get(i) != marker) {
-                        GeoPoint originalGeoPoint = markerList.get(i).getPosition();
-                        GeoPoint updatedGeoPoint = new GeoPoint(
-                                originalGeoPoint.getLatitude() + (newGeoPoint.getLatitude() - originalGeoPoint.getLatitude()),
-                                originalGeoPoint.getLongitude() + (newGeoPoint.getLongitude() - originalGeoPoint.getLongitude())
-                        );
+                int markerListSize = markerList.size();
+                int polylineListSize = polylineList.size();
 
-                        markerList.get(i).setPosition(updatedGeoPoint);
+                Log.d("List Sizes", "Marker List Size: " + markerListSize + ", Polyline List Size: " + polylineListSize);
 
-                        Polyline connectedPolyline = polylineList.get(i);
-                        List<GeoPoint> points = connectedPolyline.getActualPoints();
-                        points.set(1, updatedGeoPoint); // Sadece ikinci noktayı güncelle
-                        connectedPolyline.setPoints(new ArrayList<>(points));
-                    }
+                List<Polyline> connectedPolylines = getConnectedPolylines(marker); // Bu fonksiyonla sürüklenen markere bağlı olan polylineları alın.
+
+                for (Polyline connectedPolyline : connectedPolylines) {
+                    List<GeoPoint> points = connectedPolyline.getActualPoints();
+                    points.set(1, newGeoPoint);
+                    connectedPolyline.setPoints(new ArrayList<>(points));
                 }
-                ((MapView) mapView).postInvalidate();
+
+                ((MapView) mapView).invalidate();
 
             }
 
@@ -256,6 +256,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private List<Polyline> getConnectedPolylines(Marker marker) {
+        List<Polyline> connectedPolylines = new ArrayList<>();
+
+        int markerIndex = markerList.indexOf(marker);
+        if (markerIndex >= 0 && markerIndex < polylineList.size()) {
+            connectedPolylines.add(polylineList.get(markerIndex));
+        }
+
+        return connectedPolylines;
+    }
+
 
 
 

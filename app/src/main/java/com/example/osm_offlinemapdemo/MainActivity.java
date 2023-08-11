@@ -203,10 +203,10 @@ public class MainActivity extends AppCompatActivity {
             overlays.remove(overlays.get(overlays.size()-1));
             line.getActualPoints().remove(line.getActualPoints().size()-1);
             line.setPoints(new ArrayList<>(line.getActualPoints()));
-            polylineList.remove(line.getActualPoints().size()-1);
-            markerList.remove(line.getActualPoints().size()-1);
-
-
+            if (polylineList.size() != 0){
+                polylineList.remove(line.getActualPoints().size());
+                markerList.remove(line.getActualPoints().size());
+            }
             ((MapView) mMapView).postInvalidate();
         }
     }
@@ -264,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < polylineList.size(); i++) {
                     Polyline connectedPolyline = polylineList.get(i);
                     List<GeoPoint> points = connectedPolyline.getActualPoints();
+                    if (polylineList.size() != 0)
                     points.set(draggedMarkerIndex, newGeoPoint);
                     connectedPolyline.setPoints(new ArrayList<>(points));
                 }

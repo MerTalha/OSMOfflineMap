@@ -95,11 +95,12 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setMinZoomLevel(2.0);
         ((MapView) mMapView).setMaxZoomLevel(17.0);
 
-        XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
-        mProvider.setTileSource(mCustomTileSource);
-        TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
+        //XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
+        //mProvider.setTileSource(mCustomTileSource);
+        //TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
 
-        ((MapView) mMapView).getOverlays().add(mTilesOverlay);
+        //((MapView) mMapView).getOverlays().add(mTilesOverlay);
+
 
         line = new Polyline();
 

@@ -1,16 +1,27 @@
 package com.example.osm_offlinemapdemo;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.api.IMapView;
@@ -25,6 +36,9 @@ import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.TilesOverlay;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -51,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Marker> markerList = new ArrayList<>();
     ArrayList<Polyline> polylineList = new ArrayList<>();
 
-    static final int PICK_MAP_FILE_REQUEST = 1;
+    private static final int REQUEST_CODE_PICK_DIRECTORY = 123;
+
 
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
@@ -94,12 +109,18 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setTileSource(TileSourceFactory.MAPNIK);
         ((MapView) mMapView).setMinZoomLevel(2.0);
         ((MapView) mMapView).setMaxZoomLevel(17.0);
+        loadOfflineMaps();
 
-        XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
-        mProvider.setTileSource(mCustomTileSource);
-        TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
 
-        ((MapView) mMapView).getOverlays().add(mTilesOverlay);
+        ((MapView) mMapView).setTileSource(TileSourceFactory.MAPNIK);
+
+        // Offline harita dosyasını yükle ve harita görünümüne ekle
+
+        /*XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
+        mProvider.setTileSource(mCustomTileSource);*/
+        //TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
+
+        //((MapView) mMapView).getOverlays().add(mTilesOverlay);
 
         line = new Polyline();
 
@@ -188,6 +209,113 @@ public class MainActivity extends AppCompatActivity {
 
         deleteBtn.setOnClickListener(view -> delete());
 
+        openFileBtn.setOnClickListener(view -> pickMapFolder());
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_PICK_DIRECTORY && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                Uri uri = data.getData();
+                if (uri != null) {
+                    String mapFolderPath = uri.toString(); // Seçilen klasörün URI'si
+                    loadMap(mapFolderPath);
+                }
+            }
+        }
+    }
+
+
+    private void pickMapFolder() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, REQUEST_CODE_PICK_DIRECTORY);
+    }
+
+    private void loadOfflineMaps() {
+        File mapParentFolder = new File(Environment.getExternalStorageDirectory(), "/storage/emulated/0/osmdroid/tiles/Mapnik/4uMaps");
+
+        if (mapParentFolder.exists() && mapParentFolder.isDirectory()) {
+            for (File zoomLevelFolder : mapParentFolder.listFiles()) {
+                if (zoomLevelFolder.isDirectory()) {
+                    for (File regionFolder : zoomLevelFolder.listFiles()) {
+                        if (regionFolder.isDirectory()) {
+                            File[] mapFiles = regionFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
+
+                            if (mapFiles != null && mapFiles.length > 0) {
+                                for (File mapFile : mapFiles) {
+                                    XYTileSource offlineTileSource = new XYTileSource(
+                                            regionFolder.getName(),
+                                            1,
+                                            15,
+                                            256,
+                                            ".png",
+                                            new String[] {}
+                                    );
+
+                                    MapTileProviderBasic offlineTileProvider = new MapTileProviderBasic(getApplicationContext(), offlineTileSource);
+
+                                    TilesOverlay offlineOverlay = new TilesOverlay(offlineTileProvider, this.getBaseContext());
+                                    ((MapView) mMapView).getOverlays().add(offlineOverlay);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            ((MapView) mMapView).invalidate();
+        }
+    }
+
+
+
+
+    //                                    ((MapView) mMapView).invalidate();
+    private void loadMap(String mapFolderPath) {
+        Uri treeUri = Uri.parse(mapFolderPath);
+        DocumentFile baseMapFolder = DocumentFile.fromTreeUri(this, treeUri);
+
+        if (baseMapFolder != null && baseMapFolder.isDirectory()) {
+            DocumentFile[] mapFiles = baseMapFolder.listFiles();
+
+            if (mapFiles != null && mapFiles.length > 0) {
+                DocumentFile selectedMapFile = mapFiles[0];
+
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(selectedMapFile.getUri());
+                    if (inputStream != null) {
+                        Bitmap mapBitmap = BitmapFactory.decodeStream(inputStream);
+                        if (mapBitmap != null) {
+                            MapTileProviderBasic mProvider = new MapTileProviderBasic(getApplicationContext());
+                            TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
+
+                            ((MapView) mMapView).getOverlays().add(mTilesOverlay);
+
+                            //Drawable mapDrawable = new BitmapDrawable(getResources(), mapBitmap);
+
+                            //((MapView) mMapView).setBackground(mapDrawable);
+
+                            ((MapView) mMapView).invalidate();
+                            Toast.makeText(this, "Harita başarıyla yüklendi.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Harita görüntülenemedi.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "InputStream alınamadı.", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Harita yüklenirken bir hata oluştu.", Toast.LENGTH_SHORT).show();
+                }
+
+            } else {
+                Toast.makeText(this, "Seçilen klasörde uygun harita dosyası bulunamadı.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Geçerli bir klasör seçilmedi.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -254,8 +382,6 @@ public class MainActivity extends AppCompatActivity {
                 marker.setPosition(newGeoPoint);
                 markerList.get(draggedMarkerIndex).setPosition(newGeoPoint);
 
-
-
                 mapView.invalidate();
 
             }
@@ -279,6 +405,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }

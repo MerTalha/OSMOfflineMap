@@ -50,18 +50,12 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<Marker> markerList = new ArrayList<>();
     ArrayList<Polyline> polylineList = new ArrayList<>();
-
-    static final int PICK_MAP_FILE_REQUEST = 1;
-
+    
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // OSMDroid konfigürasyonunu başlat
-        Configuration.getInstance().load(getApplicationContext(), getPreferences(MODE_PRIVATE));
-
 
         toggleButton = findViewById(R.id.toggleButton);
         deleteAllbtn = findViewById(R.id.deleteAllBtn);
@@ -95,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setMinZoomLevel(2.0);
         ((MapView) mMapView).setMaxZoomLevel(17.0);
 
-        //XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
-        //mProvider.setTileSource(mCustomTileSource);
-        //TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
+        XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
+        mProvider.setTileSource(mCustomTileSource);
+        TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
 
-        //((MapView) mMapView).getOverlays().add(mTilesOverlay);
+        ((MapView) mMapView).getOverlays().add(mTilesOverlay);
 
 
         line = new Polyline();

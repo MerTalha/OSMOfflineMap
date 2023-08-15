@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Configuration.getInstance().load(getApplicationContext(), getPreferences(MODE_PRIVATE));
+
+
         toggleButton = findViewById(R.id.toggleButton);
         deleteAllbtn = findViewById(R.id.deleteAllBtn);
         deleteBtn = findViewById(R.id.deleteBtn);
@@ -89,12 +92,29 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setMinZoomLevel(2.0);
         ((MapView) mMapView).setMaxZoomLevel(17.0);
 
-        XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
-        mProvider.setTileSource(mCustomTileSource);
-        TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
+        //XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
+        //mProvider.setTileSource(mCustomTileSource);
+        //TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
 
-        ((MapView) mMapView).getOverlays().add(mTilesOverlay);
+        //((MapView) mMapView).getOverlays().add(mTilesOverlay);
 
+//storage/emulated/0/osmdroid/Mapnik/map.mbtiles
+
+        String offlineMapPath = "osmdroid/Mapnik/map.mbtiles";
+
+        XYTileSource offlineTileSource = new XYTileSource(
+                "OfflineMap",
+                0,
+                17,
+                256,
+                ".png",
+                new String[]{offlineMapPath} // Bu kısım önemli
+        );
+
+        MapTileProviderBasic offlineTileProvider = new MapTileProviderBasic(getApplicationContext(), offlineTileSource);
+
+        ((MapView) mMapView).setTileProvider(offlineTileProvider);
+        ((MapView) mMapView).invalidate();
 
         line = new Polyline();
 

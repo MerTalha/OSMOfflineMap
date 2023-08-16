@@ -1,7 +1,6 @@
 package com.example.osm_offlinemapdemo;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,7 +37,6 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
 
     private IMapView mMapView;
-    private static IMapController mMapController;
     private Polyline line;
     TimerTask markerTask;
     Marker marker;
@@ -48,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
     Button deleteBtn;
     View resizeView;
     FrameLayout frameLayout;
-    ArrayList<Double> arrayLot;
-    ArrayList<Double> arrayLat;
     ArrayList<Double> arrayDistance;
     List<Overlay> overlays;
     ListView locationListView;
@@ -84,12 +79,10 @@ public class MainActivity extends AppCompatActivity {
         ImageView dragView = findViewById(R.id.dragView);
         FrameLayout frameLayout = findViewById(R.id.frameLayout);
         locationListView = findViewById(R.id.markerList);
-        arrayLot = new ArrayList<>();
-        arrayLat = new ArrayList<>();
         arrayDistance = new ArrayList<>();
         combineList = new ArrayList<>();
 
-        locationAdapter = new ArrayAdapter<>((Context) this, android.R.layout.simple_list_item_1, (List) combineList);
+        locationAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (List) combineList);
         locationListView.setAdapter(locationAdapter);
 
         ((MapView) mMapView).setBuiltInZoomControls(true);
@@ -105,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setScrollableAreaLimitLatitude(maxLatitude, minLatitude, 0);
         ((MapView) mMapView).setScrollableAreaLimitLongitude(minLongitude, maxLongitude, 0);
 
-        mMapController = mMapView.getController();
+        IMapController mMapController = mMapView.getController();
         MapTileProviderBasic mProvider = new MapTileProviderBasic(getApplicationContext());
 
         ((MapView) mMapView).setMinZoomLevel(2.0);
@@ -123,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).getOverlayManager().add(line);
 
         View parentView = findViewById(android.R.id.content);
-
         dragView.setOnTouchListener(new View.OnTouchListener() {
             private float initialX, initialY;
             private boolean isDragging = false;
@@ -224,29 +216,26 @@ public class MainActivity extends AppCompatActivity {
                             msg.append(" Lat: ");
                             msg.append(lat);
                             String s = lat + "---" + lon;
+                            Log.d("Lat Lon", s);
 
-                            arrayLot.add(lon);
-                            arrayLat.add(lat);
-                            Log.d("tag", s);
                             updateCombineList();
 
-                            if (arrayLot.size()>=2 && arrayLat.size()>= 2){
-                                Log.d("tag Distance", String.valueOf(line.getDistance()));
+                            if (markerList.size()>=2){
+                                Log.d("Distance", String.valueOf(line.getDistance()));
                             }
                             if (arrayDistance.size() == 0){
                                 arrayDistance.add(line.getDistance());
                             } else if (arrayDistance.size() == 1) {
                                 arrayDistance.add(line.getDistance()-arrayDistance.get(arrayDistance.size()-1));
-                                Log.d("tag Array Distance", String.valueOf(arrayDistance.get(arrayDistance.size()-1)));
+                                Log.d("Array Distance", String.valueOf(arrayDistance.get(arrayDistance.size()-1)));
                             } else if (arrayDistance.size() >1) {
                                 a = 0;
                                 for (int i = 0; arrayDistance.size()-1 >= i; i++){
                                     a += arrayDistance.get(i);
                                 }
                                 arrayDistance.add(line.getDistance() - a);
-                                Log.d("tag Array Distance", String.valueOf(arrayDistance.get(arrayDistance.size()-1)));
+                                Log.d("Array Distance", String.valueOf(arrayDistance.get(arrayDistance.size()-1)));
                             }
-                            runOnUiThread(() -> Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show());
                             ((MapView) mMapView).invalidate();
                             // Update map
                             ((MapView) mMapView).postInvalidate();
@@ -276,10 +265,9 @@ public class MainActivity extends AppCompatActivity {
             overlays.remove(overlays.get(overlays.size()-1));
         }
         arrayDistance.clear();
-        arrayLat.clear();
-        arrayLot.clear();
         markerList.clear();
         polylineList.clear();
+
         ((MapView) mMapView).getOverlayManager().add(line);
         updateCombineList();
 
@@ -289,12 +277,16 @@ public class MainActivity extends AppCompatActivity {
     public void delete(){
         if (line.getActualPoints().size() !=0){
             overlays.remove(overlays.get(overlays.size()-1));
+
             line.getActualPoints().remove(line.getActualPoints().size()-1);
             line.setPoints(new ArrayList<>(line.getActualPoints()));
+
+            markerList.remove(markerList.size()-1);
             if (polylineList.size() != 0){
                 polylineList.remove(line.getActualPoints().size());
-                markerList.remove(line.getActualPoints().size());
+                //markerList.remove(line.getActualPoints().size());
             }
+
             updateCombineList();
             ((MapView) mMapView).postInvalidate();
         }
@@ -306,7 +298,6 @@ public class MainActivity extends AppCompatActivity {
         marker.setDraggable(true);
         poiMarker.setOnMarkerClickListener((marker, mapView1) -> {
             mapView1.invalidate();
-
             return true;
         });
 
@@ -319,16 +310,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMarkerDragEnd(Marker marker) {
                 GeoPoint newGeoPoint = marker.getPosition();
-                Log.d("yeni geopoint", String.valueOf(newGeoPoint));
+                Log.d("New Geopoint", String.valueOf(newGeoPoint));
 
                 int markerListSize = markerList.size();
                 int polylineListSize = polylineList.size();
+
                 updateCombineList();
                 for (int i = 0; i < markerListSize; i++){
                     GeoPoint markerPosition = markerList.get(i).getPosition();
-                    Log.d("Marker Konum", "Latitude: " + markerPosition.getLatitude() + ", Longitude: " + markerPosition.getLongitude());
+                    Log.d("Marker Location", "Latitude: " + markerPosition.getLatitude() + ", Longitude: " + markerPosition.getLongitude());
                 }
                 Log.d("List Sizes", "Marker List Size: " + markerListSize + ", Polyline List Size: " + polylineListSize);
+
                 int draggedMarkerIndex = markerList.indexOf(marker);
                 if (draggedMarkerIndex < 0 || draggedMarkerIndex >= markerList.size()) {
                     return;
@@ -337,17 +330,14 @@ public class MainActivity extends AppCompatActivity {
                 marker.setPosition(newGeoPoint);
                 markerList.get(draggedMarkerIndex).setPosition(newGeoPoint);
 
-
-
                 mapView.invalidate();
-
             }
 
             @Override
             public void onMarkerDrag(Marker marker) {
                 GeoPoint newGeoPoint = marker.getPosition();
-
                 int draggedMarkerIndex = markerList.indexOf(marker);
+
                 if (draggedMarkerIndex < 0 || draggedMarkerIndex >= markerList.size()) {
                     return;
                 }
@@ -360,7 +350,6 @@ public class MainActivity extends AppCompatActivity {
                     connectedPolyline.setPoints(new ArrayList<>(points));
                 }
                 updateCombineList();
-
             }
         });
     }
@@ -391,26 +380,16 @@ public class MainActivity extends AppCompatActivity {
         return y < padding || y > height - padding;
     }
 
-
     private void updateCombineList() {
         runOnUiThread(() -> {
             combineList.clear();
-
-            for (int i = 0; i < Math.min(arrayLat.size(), arrayLot.size()); i++) {
-                combineList.add(i,"Enlem: " + markerList.get(i).getPosition().getLatitude() + "\nBoylam" + markerList.get(i).getPosition().getLongitude());
+            for (int i = 0; i < markerList.size(); i++) {
+                combineList.add(i,"Latitude: " + markerList.get(i).getPosition().getLatitude() + "\nLongitude" + markerList.get(i).getPosition().getLongitude());
             }
-            // Adapter'a değişiklik olduğunu bildir
+            // Notify the adapter that there is a change.
             if (locationAdapter != null) {
                 locationAdapter.notifyDataSetChanged();
             }
         });
     }
-
-    private void addLocationToList(double latitude, double longitude) {
-        String locationInfo = "Lat: " + latitude + ", Lon: " + longitude;
-        combineList.add(locationInfo);
-        locationAdapter.notifyDataSetChanged();
-    }
-
-
 }

@@ -1,16 +1,22 @@
 package com.example.osm_offlinemapdemo;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.api.IMapView;
@@ -48,7 +54,27 @@ public class MainActivity extends AppCompatActivity {
     double a;
     ArrayList<Marker> markerList = new ArrayList<>();
     ArrayList<Polyline> polylineList = new ArrayList<>();
-    
+
+
+    private View resizeView;
+    private DrawerLayout drawerLayout;
+    private FrameLayout frameLayout;
+    private int initialFrameWidth;
+
+    private int initialFrameHeight;
+    private float initialX;
+
+    private float initialY;
+    private boolean isResizingX = false;
+    private boolean isResizingY = false;
+
+    private static final int MIN_WIDTH = 500;
+    private static final int MAX_WIDTH = 1200;
+    private static final int MIN_HEIGHT = 500;
+    private static final int MAX_HEIGHT = 800;
+
+
+
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
         arrayLot = new ArrayList<>();
         arrayLat = new ArrayList<>();
         arrayDistance = new ArrayList<>();
+
+
+        resizeView = findViewById(R.id.resizeView);
+        drawerLayout = findViewById(R.id.drawerLayout);
+        frameLayout = findViewById(R.id.frameLayout);
 
         ((MapView) mMapView).setBuiltInZoomControls(true);
         ((MapView) mMapView).setUseDataConnection(false);
@@ -93,6 +124,82 @@ public class MainActivity extends AppCompatActivity {
         line.setColor(Color.RED);
         ((MapView) mMapView).getOverlayManager().add(line);
 
+        ImageView dragView = findViewById(R.id.dragView);
+        FrameLayout frameLayout = findViewById(R.id.frameLayout);
+
+        dragView.setOnTouchListener(new View.OnTouchListener() {
+            private float initialX, initialY;
+            private boolean isDragging = false;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (isTouchInsideView(dragView, event)) {
+                            initialX = event.getRawX();
+                            initialY = event.getRawY();
+                            isDragging = true;
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (isDragging) {
+                            float deltaX = event.getRawX() - initialX;
+                            float deltaY = event.getRawY() - initialY;
+
+                            // Frame'yi hareket ettir
+                            frameLayout.setX(frameLayout.getX() + deltaX);
+                            frameLayout.setY(frameLayout.getY() + deltaY);
+
+                            initialX = event.getRawX();
+                            initialY = event.getRawY();
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isDragging = false;
+                        break;
+                }
+                return true;
+            }
+        });
+
+
+
+
+
+        resizeView.setOnTouchListener((v, event) -> {
+            initialFrameWidth = frameLayout.getLayoutParams().width;
+            initialFrameHeight = frameLayout.getLayoutParams().height;
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    initialX = event.getRawX();
+                    initialY = event.getRawY();
+                    isResizingX = isTouchOnXEdge(event);
+                    isResizingY = isTouchOnYEdge(event);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (isResizingX || isResizingY) {
+                        float deltaX = event.getRawX() - initialX;
+                        float deltaY = event.getRawY() - initialY;
+                        int newWidth = (int) (initialFrameWidth + deltaX / 37);
+                        int newHeight = (int) (initialFrameHeight + deltaY / 37);
+                        ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
+                        if (isResizingX) {
+                            layoutParams.width = Math.min(Math.max(newWidth, MIN_WIDTH), MAX_WIDTH);
+                        }
+                        if (isResizingY) {
+                            layoutParams.height = Math.min(Math.max(newHeight, MIN_HEIGHT), MAX_HEIGHT);
+                        }
+                        frameLayout.setLayoutParams(layoutParams);
+                    }
+                    break;
+            }
+            return true;
+        });
+
+
+
+
+
         ((MapView) mMapView).setOnTouchListener((view, motionEvent) -> {
             if (toggleButton.isChecked()){
                  Timer markerTimer = new Timer();
@@ -107,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             // Here you can add markers
-                            int offsetY = -110; // Adjust according to device screen
+                            int offsetY = -90; // Adjust according to device screen
                             GeoPoint touchedPoint = (GeoPoint) mMapView.getProjection().fromPixels((int) motionEvent.getX(), (int) motionEvent.getY() + offsetY);
                             marker.setPosition(touchedPoint);
                             line.addPoint(touchedPoint);
@@ -168,6 +275,29 @@ public class MainActivity extends AppCompatActivity {
         deleteAllbtn.setOnClickListener(view -> deleteAll());
 
         deleteBtn.setOnClickListener(view -> delete());
+    }
+
+    private boolean isTouchInsideView(View view, MotionEvent event) {
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        int viewX = location[0];
+        int viewY = location[1];
+        return (event.getRawX() >= viewX && event.getRawX() <= (viewX + view.getWidth()) &&
+                event.getRawY() >= viewY && event.getRawY() <= (viewY + view.getHeight()));
+    }
+
+    private boolean isTouchOnXEdge(MotionEvent event) {
+        int padding = 50; // Adjust padding as needed
+        float x = event.getX();
+        float width = frameLayout.getWidth();
+        return x < padding || x > width - padding;
+    }
+
+    private boolean isTouchOnYEdge(MotionEvent event) {
+        int padding = 50; // Adjust padding as needed
+        float y = event.getY();
+        float height = frameLayout.getHeight();
+        return y < padding || y > height - padding;
     }
 
     public void deleteAll(){

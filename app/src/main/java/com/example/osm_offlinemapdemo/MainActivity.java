@@ -165,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
                     if (isResizingX || isResizingY) {
                         float deltaX = event.getRawX() - initialX;
                         float deltaY = event.getRawY() - initialY;
-                        int newWidth = (int) (initialFrameWidth + deltaX / 37);
-                        int newHeight = (int) (initialFrameHeight + deltaY / 37);
+                        int newWidth = (int) (initialFrameWidth + deltaX *0.05f);
+                        int newHeight = (int) (initialFrameHeight + deltaY *0.05f);
                         ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
                         if (isResizingX) {
                             layoutParams.width = Math.min(Math.max(newWidth, MIN_WIDTH), MAX_WIDTH);

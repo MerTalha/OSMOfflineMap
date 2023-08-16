@@ -41,13 +41,11 @@ public class MainActivity extends AppCompatActivity {
     ToggleButton toggleButton;
     Button deleteAllbtn;
     Button deleteBtn;
-    Button openFileBtn;
     ArrayList<Double> arrayLot;
     ArrayList<Double> arrayLat;
     ArrayList<Double> arrayDistance;
     List<Overlay> overlays;
     double a;
-
     ArrayList<Marker> markerList = new ArrayList<>();
     ArrayList<Polyline> polylineList = new ArrayList<>();
     
@@ -57,19 +55,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Configuration.getInstance().load(getApplicationContext(), getPreferences(MODE_PRIVATE));
-
-
         toggleButton = findViewById(R.id.toggleButton);
         deleteAllbtn = findViewById(R.id.deleteAllBtn);
         deleteBtn = findViewById(R.id.deleteBtn);
-        openFileBtn = findViewById(R.id.openFileBtn);
         mMapView = findViewById(R.id.mapView);
         arrayLot = new ArrayList<>();
         arrayLat = new ArrayList<>();
         arrayDistance = new ArrayList<>();
-
-        ((MapView) mMapView).setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
 
         ((MapView) mMapView).setBuiltInZoomControls(true);
         ((MapView) mMapView).setUseDataConnection(false);
@@ -85,52 +77,29 @@ public class MainActivity extends AppCompatActivity {
         ((MapView) mMapView).setScrollableAreaLimitLongitude(minLongitude, maxLongitude, 0);
 
         mMapController = mMapView.getController();
-
         MapTileProviderBasic mProvider = new MapTileProviderBasic(getApplicationContext());
 
-        ((MapView) mMapView).setTileSource(TileSourceFactory.MAPNIK);
         ((MapView) mMapView).setMinZoomLevel(2.0);
         ((MapView) mMapView).setMaxZoomLevel(17.0);
 
-        //XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
-        //mProvider.setTileSource(mCustomTileSource);
-        //TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
+        XYTileSource mCustomTileSource = new XYTileSource("4uMaps", 1, 16, 256, ".png", null, "/storage/emulated/0/osmdroid/tiles/Mapnik");
+        mProvider.setTileSource(mCustomTileSource);
 
-        //((MapView) mMapView).getOverlays().add(mTilesOverlay);
-
-//storage/emulated/0/osmdroid/Mapnik/map.mbtiles
-
-        String offlineMapPath = "osmdroid/Mapnik/map.mbtiles";
-
-        XYTileSource offlineTileSource = new XYTileSource(
-                "OfflineMap",
-                0,
-                17,
-                256,
-                ".png",
-                new String[]{offlineMapPath} // Bu kısım önemli
-        );
-
-        MapTileProviderBasic offlineTileProvider = new MapTileProviderBasic(getApplicationContext(), offlineTileSource);
-
-        ((MapView) mMapView).setTileProvider(offlineTileProvider);
-        ((MapView) mMapView).invalidate();
+        TilesOverlay mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
+        ((MapView) mMapView).getOverlays().add(mTilesOverlay);
 
         line = new Polyline();
-
         line.getPaint().setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
         line.setColor(Color.RED);
         ((MapView) mMapView).getOverlayManager().add(line);
 
         ((MapView) mMapView).setOnTouchListener((view, motionEvent) -> {
-
             if (toggleButton.isChecked()){
                  Timer markerTimer = new Timer();
                 // Create and set markers
                 marker = new Marker((MapView) mMapView);
                 marker.setInfoWindow(null);
                 applyDraggableListener(marker, (MapView) mMapView);
-
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     // Start timer
@@ -148,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
                             polylineList.add(line);
                             markerList.add(marker);
 
-
                             final StringBuilder msg = new StringBuilder();
                             final double lon = (touchedPoint.getLongitude() / 1E6) * 1000000;
                             final double lat = (touchedPoint.getLatitude() / 1E6) * 1000000;
@@ -165,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
                             if (arrayLot.size()>=2 && arrayLat.size()>= 2){
                                 Log.d("tag Distance", String.valueOf(line.getDistance()));
                             }
-
                             if (arrayDistance.size() == 0){
                                 arrayDistance.add(line.getDistance());
                             } else if (arrayDistance.size() == 1) {
@@ -179,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
                                 arrayDistance.add(line.getDistance() - a);
                                 Log.d("tag Array Distance", String.valueOf(arrayDistance.get(arrayDistance.size()-1)));
                             }
-
                             runOnUiThread(() -> Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show());
                             ((MapView) mMapView).invalidate();
                             // Update map
@@ -202,9 +168,7 @@ public class MainActivity extends AppCompatActivity {
         deleteAllbtn.setOnClickListener(view -> deleteAll());
 
         deleteBtn.setOnClickListener(view -> delete());
-
     }
-
 
     public void deleteAll(){
         line.getActualPoints().clear();
@@ -220,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
         ((MapView) mMapView).postInvalidate();
     }
+
     public void delete(){
         if (line.getActualPoints().size() !=0){
             overlays.remove(overlays.get(overlays.size()-1));
@@ -294,6 +259,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }

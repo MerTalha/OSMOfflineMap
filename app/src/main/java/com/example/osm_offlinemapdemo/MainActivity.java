@@ -132,13 +132,11 @@ public class MainActivity extends AppCompatActivity {
                             float deltaX = event.getRawX() - initialX;
                             float deltaY = event.getRawY() - initialY;
 
-                            // Sürükleme sınırlarını ayarla
                             float newX = frameLayout.getX() + deltaX;
                             float newY = frameLayout.getY() + deltaY;
                             newX = Math.max(0, Math.min(newX, parentView.getWidth() - frameLayout.getWidth()));
                             newY = Math.max(0, Math.min(newY, parentView.getHeight() - frameLayout.getHeight()));
 
-                            // Frame'yi hareket ettir
                             frameLayout.setX(newX);
                             frameLayout.setY(newY);
 
@@ -288,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Apply draggable listener to a marker...
     public  void applyDraggableListener(Marker poiMarker, MapView mapView  ) {
 
         marker.setDraggable(true);
@@ -350,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Check if a touch event is inside a view...
     private boolean isTouchInsideView(View view, MotionEvent event) {
         int[] location = new int[2];
         view.getLocationOnScreen(location);
@@ -359,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
                 event.getRawY() >= viewY && event.getRawY() <= (viewY + view.getHeight()));
     }
 
+    // Check if touch event is on the X edge...
     private boolean isTouchOnXEdge(MotionEvent event) {
         int padding = 50; // Adjust padding as needed
         float x = event.getX();
@@ -366,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
         return x < padding || x > width - padding;
     }
 
+    // Check if touch event is on the Y edge...
     private boolean isTouchOnYEdge(MotionEvent event) {
         int padding = 50; // Adjust padding as needed
         float y = event.getY();
